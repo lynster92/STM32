@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Jenia/Desktop/USB_ADC_Writer/Inc
+HeaderPath=D:/STM32_tests/USB_ADC_Writer/Inc
 HeaderFiles=ffconf.h;usbh_diskio.h;fatfs.h;usb_host.h;usbh_conf.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Jenia/Desktop/USB_ADC_Writer/Src
+SourcePath=D:/STM32_tests/USB_ADC_Writer/Src
 SourceFiles=usbh_diskio.c;fatfs.c;usb_host.c;usbh_conf.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

@@ -102,8 +102,7 @@ int main(void)
 	uint8_t i=0;
 	uint32_t VCC;
 	uint32_t UREFNM = 1210*4096;
-	uint32_t byteswritten;
-	char str[64];
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -131,26 +130,16 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
-	HAL_ADC_Start_DMA(&hadc1,(uint32_t *)RESULT,11);
-	HAL_TIM_Base_Start(&htim2);
-	HAL_TIM_Base_Start_IT(&htim10);
-  /* USER CODE END 2 */
-	if(0 == f_mount(&USBHFatFS,  (TCHAR const*)USBHPath, 0))
-	{
-		if(f_open(&USBHFile, _pathToFile, FA_CREATE_ALWAYS) == FR_OK)
-		{
-			f_close(&USBHFile);
-		}
-		else
-		{
-			Error_Handler();
-		}
-	}
-	else
+	if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) != FR_OK)
 	{
 		Error_Handler();
 	}
 	
+	HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&RESULT,11);
+	HAL_TIM_Base_Start(&htim2);
+	HAL_TIM_Base_Start_IT(&htim10);
+  /* USER CODE END 2 */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -167,15 +156,14 @@ int main(void)
 			{
 				VADC[i] = (uint16_t)(RESULTV[i+1]*VCC / 4096);
 			}
-			sprintf(str,"%05d,%05d,%05d,%05d,%05d,%05d,%05d,%05d,%05d,%05d\r\n",
-			VADC[0],VADC[1],VADC[2],VADC[3],VADC[4],VADC[5],VADC[6],VADC[7],VADC[8],VADC[9]);
 			RESULTV[0] = 0;
 			if(Appli_state == APPLICATION_START)
 			{
-				if(f_open(&USBHFile, _pathToFile, FA_WRITE) == FR_OK)
+				if(f_open(&USBHFile, _pathToFile, FA_WRITE | FA_OPEN_APPEND | FA_OPEN_ALWAYS) == FR_OK)
 				{
-					result = f_printf(&USBHFile, str); 
-					if(result != FR_OK || byteswritten == 0)
+					result = f_printf(&USBHFile, "%05d,%05d,%05d,%05d,%05d,%05d,%05d,%05d,%05d,%05d\r\n",
+					VADC[0],VADC[1],VADC[2],VADC[3],VADC[4],VADC[5],VADC[6],VADC[7],VADC[8],VADC[9]); 
+					if(result == 0)
 					{
 						Error_Handler();
 					}
@@ -383,7 +371,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 0;
+  htim2.Init.Period = 8400;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
@@ -396,7 +384,7 @@ static void MX_TIM2_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
   {
@@ -410,9 +398,9 @@ static void MX_TIM10_Init(void)
 {
 
   htim10.Instance = TIM10;
-  htim10.Init.Prescaler = 0;
+  htim10.Init.Prescaler = 19999;
   htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim10.Init.Period = 0;
+  htim10.Init.Period = 4199;
   htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
   {
